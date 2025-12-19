@@ -4,7 +4,10 @@
 #include <ctime>
 using namespace std;
 
+// ---------- GLOBAL VARIABLES ----------
 bool gameOver;
+bool paused = false;
+
 const int width = 20;
 const int height = 20;
 
@@ -18,8 +21,42 @@ int nTail;
 enum eDirection { STOP = 0, LEFT, RIGHT, UP, DOWN };
 eDirection dir;
 
+// ---------- FUNCTION DECLARATIONS ----------
+void Setup();
+void Draw();
+void Input();
+void Logic();
+void SetColor(int color);
+
+// ---------- MAIN ----------
+int main() {
+    char start;
+    cout << "Press S to Start Snake Game: ";
+    cin >> start;
+
+    if (start == 's' || start == 'S') {
+        Setup();
+        while (!gameOver) {
+            Draw();
+            Input();
+            if (!paused) {
+                Logic();
+            }
+            Sleep(100); // Speed control
+        }
+    }
+
+    system("cls");
+    cout << "Game Over!" << endl;
+    cout << "Final Score: " << score << endl;
+    system("pause");
+    return 0;
+}
+
+// ---------- SETUP ----------
 void Setup() {
     gameOver = false;
+    paused = false;
     dir = STOP;
     x = width / 2;
     y = height / 2;
@@ -30,27 +67,39 @@ void Setup() {
     nTail = 0;
 }
 
+// ---------- DRAW ----------
 void Draw() {
     system("cls");
 
+    // Top wall
+    SetColor(7);
     for (int i = 0; i < width + 2; i++)
         cout << "#";
     cout << endl;
 
+    // Side walls & game area
     for (int i = 0; i < height; i++) {
         for (int j = 0; j < width; j++) {
             if (j == 0)
                 cout << "#";
 
-            if (i == y && j == x)
-                cout << "O"; // head
-            else if (i == fruitY && j == fruitX)
-                cout << "F"; // fruit
+            if (i == y && j == x) {
+                SetColor(10); // Green head
+                cout << "O";
+                SetColor(7);
+            }
+            else if (i == fruitY && j == fruitX) {
+                SetColor(12); // Red fruit
+                cout << "F";
+                SetColor(7);
+            }
             else {
                 bool print = false;
                 for (int k = 0; k < nTail; k++) {
                     if (tailX[k] == j && tailY[k] == i) {
+                        SetColor(2); // Dark green tail
                         cout << "o";
+                        SetColor(7);
                         print = true;
                         break;
                     }
@@ -65,26 +114,33 @@ void Draw() {
         cout << endl;
     }
 
+    // Bottom wall
     for (int i = 0; i < width + 2; i++)
         cout << "#";
     cout << endl;
 
-    cout << "Score: " << score << endl;
+    cout << "Score: " << score;
+    if (paused)
+        cout << "   [PAUSED]";
+    cout << endl;
 }
 
+// ---------- INPUT ----------
 void Input() {
     if (_kbhit()) {
         switch (_getch()) {
-        case 'a': dir = LEFT; break;
-        case 'd': dir = RIGHT; break;
-        case 'w': dir = UP; break;
-        case 's': dir = DOWN; break;
+        case 'a': if (dir != RIGHT) dir = LEFT; break;
+        case 'd': if (dir != LEFT) dir = RIGHT; break;
+        case 'w': if (dir != DOWN) dir = UP; break;
+        case 's': if (dir != UP) dir = DOWN; break;
+        case 'p': paused = !paused; break;
         case 'x': gameOver = true; break;
         default: break;
         }
     }
 }
 
+// ---------- LOGIC ----------
 void Logic() {
     int prevX = tailX[0];
     int prevY = tailY[0];
@@ -109,7 +165,7 @@ void Logic() {
     default: break;
     }
 
-    // Wall collision = game over
+    // Wall collision
     if (x < 0 || x >= width || y < 0 || y >= height)
         gameOver = true;
 
@@ -128,22 +184,7 @@ void Logic() {
     }
 }
 
-int main() {
-    char start;
-    cout << "Press S to Start Snake Game: ";
-    cin >> start;
-
-    if (start == 's' || start == 'S') {
-        Setup();
-        while (!gameOver) {
-            Draw();
-            Input();
-            Logic();
-            Sleep(100); // speed (increase = slower)
-        }
-    }
-
-    cout << "\nGame Over!" << endl;
-    system("pause");
-    return 0;
+// ---------- COLOR ----------
+void SetColor(int color) {
+    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), color);
 }
