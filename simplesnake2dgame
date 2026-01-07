@@ -4,7 +4,7 @@
 #include <ctime>
 using namespace std;
 
-// ---------- GLOBAL VARIABLES ----------
+
 bool gameOver;
 bool paused = false;
 
@@ -21,14 +21,12 @@ int nTail;
 enum eDirection { STOP = 0, LEFT, RIGHT, UP, DOWN };
 eDirection dir;
 
-// ---------- FUNCTION DECLARATIONS ----------
 void Setup();
 void Draw();
 void Input();
 void Logic();
 void SetColor(int color);
 
-// ---------- MAIN ----------
 int main() {
     char start;
     cout << "Press S to Start Snake Game: ";
@@ -53,7 +51,6 @@ int main() {
     return 0;
 }
 
-// ---------- SETUP ----------
 void Setup() {
     gameOver = false;
     paused = false;
@@ -67,7 +64,6 @@ void Setup() {
     nTail = 0;
 }
 
-// ---------- DRAW ----------
 void Draw() {
     system("cls");
 
@@ -114,7 +110,6 @@ void Draw() {
         cout << endl;
     }
 
-    // Bottom wall
     for (int i = 0; i < width + 2; i++)
         cout << "#";
     cout << endl;
@@ -125,7 +120,6 @@ void Draw() {
     cout << endl;
 }
 
-// ---------- INPUT ----------
 void Input() {
     if (_kbhit()) {
         switch (_getch()) {
@@ -140,7 +134,6 @@ void Input() {
     }
 }
 
-// ---------- LOGIC ----------
 void Logic() {
     int prevX = tailX[0];
     int prevY = tailY[0];
@@ -165,17 +158,14 @@ void Logic() {
     default: break;
     }
 
-    // Wall collision
     if (x < 0 || x >= width || y < 0 || y >= height)
         gameOver = true;
 
-    // Self collision
     for (int i = 0; i < nTail; i++) {
         if (tailX[i] == x && tailY[i] == y)
             gameOver = true;
     }
 
-    // Eat fruit
     if (x == fruitX && y == fruitY) {
         score += 10;
         fruitX = rand() % (width - 2) + 1;
@@ -184,7 +174,6 @@ void Logic() {
     }
 }
 
-// ---------- COLOR ----------
 void SetColor(int color) {
     SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), color);
 }
